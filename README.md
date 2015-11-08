@@ -1,6 +1,6 @@
 # lzcomp
 
-Python bindings for the LZCOMP compression library.
+CFFI-based Python bindings for the LZCOMP compression library.
 
 Install:
 ```bash

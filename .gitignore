@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+build/
+wheelhouse/
+dist/
+*.egg-info/
+*.egg
+
+# C extensions
+*.so
+
+# Java classes
+*.class
