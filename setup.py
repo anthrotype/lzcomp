@@ -40,6 +40,8 @@ class TestCommand(Command):
     def run(self):
         import subprocess, glob
 
+        self.run_command('build')
+
         test_dir = os.path.join(CURR_DIR, 'tests')
         os.chdir(test_dir)
 
