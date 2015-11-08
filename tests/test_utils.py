@@ -27,9 +27,18 @@ build_lib = os.path.join(build_base, platform_lib_name)
 
 LZCOMP = os.path.join(build_lib, "lzcomp", "cli.py")
 
-# prepend build/lib to PYTHONPATH environment variable
+deps_path = build_lib
+# `setup_requires` and `tests_require` packages are installed in `.eggs`
+eggs_dir = os.path.abspath(os.path.join("..", ".eggs"))
+if os.path.isdir(eggs_dir):
+    eggs = [os.path.join(eggs_dir, p) for p in os.listdir(eggs_dir)
+            if p.endswith('.egg')]
+    if eggs:
+        deps_path = os.pathsep.join([build_lib] + eggs)
+
+# prepend build/lib and .eggs/*.egg to PYTHONPATH environment variable
 TEST_ENV = os.environ.copy()
 if 'PYTHONPATH' not in TEST_ENV:
-    TEST_ENV['PYTHONPATH'] = build_lib
+    TEST_ENV['PYTHONPATH'] = deps_path
 else:
-    TEST_ENV['PYTHONPATH'] = build_lib + os.pathsep + TEST_ENV['PYTHONPATH']
+    TEST_ENV['PYTHONPATH'] = deps_path + os.pathsep + TEST_ENV['PYTHONPATH']
