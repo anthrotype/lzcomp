@@ -8,6 +8,7 @@ wheelhouse/
 dist/
 *.egg-info/
 *.egg
+.eggs/
 
 # C extensions
 *.so
