@@ -8,6 +8,8 @@
 #include <lzcomp.h>
 #include <errcodes.h>
 
+const int version = 3; 
+
 int do_compress(long length, uint8_t *input,
                 long *p_output_length, uint8_t *output) {
     MTX_MemHandler *mem = NULL;
@@ -43,13 +45,9 @@ int do_decompress(long length, uint8_t *input,
     MTX_MemHandler* mem = NULL;
     LZCOMP* lzcomp = NULL;
     uint8_t *buf = NULL;
-    long output_length;
+    long bufsize;
     int result = 0;
     int num_written;
-    LZCOMPOutput out;
-
-    out.cb_ = callback;
-    out.data_ = callback_data;
 
     mem = MTX_mem_Create(&malloc, &realloc, &free);
     if (!mem) return result;
@@ -61,9 +59,16 @@ int do_decompress(long length, uint8_t *input,
     }
 
     buf = (uint8_t*)MTX_LZCOMP_UnPackMemory(
-        lzcomp, input, length, &output_length, 3);
-    num_written = MTX_LZCOMP_Write(out, buf, output_length);
-    if (num_written == output_length) {
+        lzcomp, input, length, &bufsize, version);
+    if (!buf) {
+        MTX_LZCOMP_Destroy(lzcomp);
+        free(mem);
+        return result;
+    }
+
+    // call Python callback function to write output bytes 
+    num_written = callback(callback_data, buf, bufsize);
+    if (num_written == bufsize) {
         result = 1;  // success!
     }
     MTX_LZCOMP_Destroy(lzcomp);
