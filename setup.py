@@ -1,6 +1,5 @@
 import os
 from setuptools import setup, Command
-from setuptools.command.build_ext import build_ext
 import platform
 import sys
 
@@ -48,14 +47,6 @@ class TestCommand(Command):
                 raise SystemExit(1)
 
 
-class BuildExt(build_ext):
-    def get_source_files(self):
-        filenames = build_ext.get_source_files(self)
-        for ext in self.extensions:
-            filenames.extend(ext.depends)
-        return filenames
-
-
 def keywords_require_cffi(argv):
     """ This setup.py script uses the setuptools 'setup_requires' feature
     to ensures the cffi package is installed before compiling the extension
@@ -85,7 +76,7 @@ def keywords_require_cffi(argv):
         return {
             "setup_requires": requirements,
             "cffi_modules": [
-                "src/python/build_lzcomp.py:ffi",
+                "cffi/build_lzcomp.py:ffi",
             ]
         }
     else:
@@ -125,7 +116,7 @@ setup(
         'Topic :: Text Processing :: Fonts',
         'Topic :: Utilities',
         ],
-    package_dir={"": "src/python"},
+    package_dir={"": "Lib"},
     packages=['lzcomp'],
 
     tests_require=requirements,
@@ -136,7 +127,6 @@ setup(
         'console_scripts': ["lzcomp = lzcomp.cli:main"]
         },
     cmdclass={
-        "build_ext": BuildExt,
         "test": TestCommand,
         },
     **keywords_require_cffi(sys.argv)
