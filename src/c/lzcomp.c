@@ -28,6 +28,12 @@
 
 const long max_2Byte_Dist = 512;
 
+/* Writes len bytes into buf, using the out callback. */
+int MTX_LZCOMP_Write(LZCOMPOutput out,
+                     const uint8_t* buf, long len) {
+    return out.cb_(out.data_, buf, len);
+}
+
 /* Sets the maximum number of distance ranges used, based on the <length> parameter */
 static void SetDistRange( LZCOMP *t, long length )
 {
