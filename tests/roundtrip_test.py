@@ -30,8 +30,8 @@ for filename in INPUTS.splitlines():
                env=TEST_ENV)
     print("--- compression: %s seconds ---" % (time.time() - comp_start))
     decomp_start = time.time()
-    check_call([PYTHON, LZCOMP, "-f", "-d", "-i", compressed, "-o", uncompressed],
-               env=TEST_ENV)
+    check_call([PYTHON, LZCOMP, "-f", "-d", "-i", compressed, "-o",
+                uncompressed], env=TEST_ENV)
     print("--- decompression: %s seconds ---" % (time.time() - decomp_start))
     if diff_q(filename, uncompressed) != 0:
         sys.exit(1)
