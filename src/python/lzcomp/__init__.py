@@ -7,6 +7,7 @@ from ._lzcomp_cffi import ffi, lib
 class error(Exception):
     pass
 
+
 def compress(string):
     """Compress a byte string.
 
@@ -23,9 +24,11 @@ Raises:
   lzcomp.error: If arguments are invalid, or compressor fails."""
 
     length = len(string)
-    p_output_length = ffi.new("long[1]", [0])
-    output = lib.do_compress(length, string, p_output_length)
-    if not output:
+    output_length = int(1.2 * length + 10240)
+    output = ffi.new("uint8_t[]", output_length)
+    p_output_length = ffi.new("long[1]", [output_length])
+    ok = lib.do_compress(length, string, p_output_length, output)
+    if not ok:
         raise error("MTX_LZCOMP_PackMemory failed")
     return ffi.buffer(output, p_output_length[0])[:]
 
@@ -48,6 +51,6 @@ Raises:
     length = len(string)
     p_output_length = ffi.new("long[1]", [0])
     output = lib.do_decompress(length, string, p_output_length)
-    if not output:
+    if output == ffi.NULL:
         raise error("MTX_LZCOMP_UnpackMemory failed")
     return ffi.buffer(output, p_output_length[0])[:]
