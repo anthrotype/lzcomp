@@ -3,7 +3,7 @@ import os
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-with open(os.path.join(CURR_DIR, "..", "c", "_lzcompmodule.c"), 'r') as f:
+with open(os.path.join(CURR_DIR, "_lzcompmodule.c"), 'r') as f:
     source = f.read()
 
 ffi = cffi.FFI()
@@ -21,20 +21,20 @@ ffi.set_source(
     source,
     source_extension='.c',
     sources=[
-        "src/c/ahuff.c",
-        "src/c/bitio.c",
-        "src/c/lzcomp.c",
-        "src/c/mtxmem.c",
+        "mtx/ahuff.c",
+        "mtx/bitio.c",
+        "mtx/lzcomp.c",
+        "mtx/mtxmem.c",
     ],
     depends=[
-        "src/c/config.h",
-        "src/c/mtxmem.h",
-        "src/c/bitio.h",
-        "src/c/ahuff.h",
-        "src/c/lzcomp.h",
-        "src/c/errcodes.h",
+        "mtx/config.h",
+        "mtx/mtxmem.h",
+        "mtx/bitio.h",
+        "mtx/ahuff.h",
+        "mtx/lzcomp.h",
+        "mtx/errcodes.h",
     ],
-    include_dirs=["src/c"]
+    include_dirs=["mtx"]
     )
 
 
