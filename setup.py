@@ -1,13 +1,8 @@
 import os
 from setuptools import setup, Command
 from setuptools.command.build_ext import build_ext
-from distutils.command.build import build
-from setuptools.command.install import install
-from setuptools.command.test import test
 import platform
 import sys
-import os
-import re
 
 
 CURR_DIR = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -38,16 +33,17 @@ class TestCommand(Command):
         pass
 
     def run(self):
-        import subprocess, glob
+        import subprocess
+        import glob
 
         self.run_command('build')
 
         test_dir = os.path.join(CURR_DIR, 'tests')
         os.chdir(test_dir)
 
-        for test in glob.glob("*_test.py"):
+        for test_script in glob.glob("*_test.py"):
             try:
-                subprocess.check_call([sys.executable, test])
+                subprocess.check_call([sys.executable, test_script])
             except subprocess.CalledProcessError:
                 raise SystemExit(1)
 
@@ -60,156 +56,40 @@ class BuildExt(build_ext):
         return filenames
 
 
-def keywords_with_side_effects(argv):
+def keywords_require_cffi(argv):
+    """ This setup.py script uses the setuptools 'setup_requires' feature
+    to ensures the cffi package is installed before compiling the extension
+    module.
+    This function parses the command line arguments to setup.py, and if none
+    of these need the cffi module, then it returns an empty dictionary.
     """
-    Get a dictionary with setup keywords that (can) have side effects.
-
-    :param argv: A list of strings with command line arguments.
-    :returns: A dictionary with keyword arguments for the ``setup()`` function.
-
-    This setup.py script uses the setuptools 'setup_requires' feature because
-    this is required by the cffi package to compile extension modules. The
-    purpose of ``keywords_with_side_effects()`` is to avoid triggering the cffi
-    build process as a result of setup.py invocations that don't need the cffi
-    module to be built (setup.py serves the dual purpose of exposing package
-    metadata).
-
-    All of the options listed by ``python setup.py --help`` that print
-    information should be recognized here. The commands ``clean``,
-    ``egg_info``, ``register``, ``sdist`` and ``upload`` are also recognized.
-    Any combination of these options and commands is also supported.
-
-    This function is based on the `setup.py script`_ of cryptography, which in
-    turn was originally based on the `setup.py script`_ of SciPy (see
-    also the discussion in `pip issue #25`_).
-
-    .. _pip issue #25: https://github.com/pypa/pip/issues/25
-    .. _setup.py scripts:
-    ..    https://github.com/pyca/cryptography/blob/master/setup.py
-    ..    https://github.com/scipy/scipy/blob/master/setup.py
-    """
-    no_setup_requires_arguments = (
-        '-h', '--help',
-        '-n', '--dry-run',
-        '-q', '--quiet',
-        '-v', '--verbose',
-        '-V', '--version',
-        '--author',
-        '--author-email',
-        '--classifiers',
-        '--contact',
-        '--contact-email',
-        '--description',
-        '--egg-base',
-        '--fullname',
-        '--help-commands',
-        '--keywords',
-        '--licence',
-        '--license',
-        '--long-description',
-        '--maintainer',
-        '--maintainer-email',
-        '--name',
-        '--no-user-cfg',
-        '--obsoletes',
-        '--platforms',
-        '--provides',
-        '--requires',
-        '--url',
-        'clean',
-        'egg_info',
-        'register',
-        'sdist',
+    setup_requires_arguments = (
+        'build',
+        'build_ext',
+        'build_clib',
+        'install',
+        'install_lib',
+        'install_headers',
+        'bdist',
+        'bdist_dumb',
+        'bdist_rpm',
+        'bdist_wininst',
         'upload',
+        'develop',
+        'test',
+        'bdist_wheel',
+        'bdist_egg',
     )
 
-    def is_short_option(argument):
-        """Check whether a command line argument is a short option."""
-        return len(argument) >= 2 and argument[0] == '-' and argument[1] != '-'
-
-    def expand_short_options(argument):
-        """Expand combined short options into canonical short options."""
-        return ('-' + char for char in argument[1:])
-
-    def argument_without_setup_requirements(argv, i):
-        """Check whether a command line argument needs setup requirements."""
-        if argv[i] in no_setup_requires_arguments:
-            # Simple case: An argument which is either an option or a command
-            # which doesn't need setup requirements.
-            return True
-        elif (is_short_option(argv[i]) and
-              all(option in no_setup_requires_arguments
-                  for option in expand_short_options(argv[i]))):
-            # Not so simple case: Combined short options none of which need
-            # setup requirements.
-            return True
-        elif argv[i - 1:i] == ['--egg-base']:
-            # Tricky case: --egg-info takes an argument which should not make
-            # us use setup_requires (defeating the purpose of this code).
-            return True
-        else:
-            return False
-
-    if all(argument_without_setup_requirements(argv, i)
-           for i in range(1, len(argv))):
-        return {
-            "cmdclass": {
-                "build": DummyBuild,
-                "install": DummyInstall,
-                "test": DummyPyTest,
-            }
-        }
-    else:
-        cffi_modules = [
-            "src/python/build_lzcomp.py:ffi",
-        ]
-
+    if any(argv[i] in setup_requires_arguments for i in range(1, len(argv))):
         return {
             "setup_requires": requirements,
-            "cmdclass": {
-                "build_ext": BuildExt,
-                "test": TestCommand,
-            },
-            "cffi_modules": cffi_modules
+            "cffi_modules": [
+                "src/python/build_lzcomp.py:ffi",
+            ]
         }
-
-
-setup_requires_error = ("Requested setup command that needs 'setup_requires' "
-                        "while command line arguments implied a side effect "
-                        "free command or option.")
-
-
-class DummyBuild(build):
-    """
-    This class makes it very obvious when ``keywords_with_side_effects()`` has
-    incorrectly interpreted the command line arguments to ``setup.py build`` as
-    one of the 'side effect free' commands or options.
-    """
-
-    def run(self):
-        raise RuntimeError(setup_requires_error)
-
-
-class DummyInstall(install):
-    """
-    This class makes it very obvious when ``keywords_with_side_effects()`` has
-    incorrectly interpreted the command line arguments to ``setup.py install``
-    as one of the 'side effect free' commands or options.
-    """
-
-    def run(self):
-        raise RuntimeError(setup_requires_error)
-
-
-class DummyPyTest(test):
-    """
-    This class makes it very obvious when ``keywords_with_side_effects()`` has
-    incorrectly interpreted the command line arguments to ``setup.py test`` as
-    one of the 'side effect free' commands or options.
-    """
-
-    def run_tests(self):
-        raise RuntimeError(setup_requires_error)
+    else:
+        return {}
 
 
 setup(
@@ -255,5 +135,9 @@ setup(
     entry_points={
         'console_scripts': ["lzcomp = lzcomp.cli:main"]
         },
-    **keywords_with_side_effects(sys.argv)
+    cmdclass={
+        "build_ext": BuildExt,
+        "test": TestCommand,
+        },
+    **keywords_require_cffi(sys.argv)
 )
