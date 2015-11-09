@@ -2,7 +2,6 @@
 /*                                      LZCOMP.H                                        */
 /****************************************************************************************/
 #include "mtxmem.h"
-#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,20 +86,6 @@ typedef struct {
     unsigned char *MTX_LZCOMP_UnPackMemory( LZCOMP *t, void *dataIn, long dataInSize, long *sizeOut, unsigned char version );
 #endif
 #endif
-
-/* Function pointer type used to write len bytes into buf. Returns the */
-/* number of bytes written or -1 on error. */
-typedef int (*LZCOMPOutputFunction)(void* data, const uint8_t* buf, long len);
-
-/* Output callback function with associated data. */
-typedef struct {
-  LZCOMPOutputFunction cb_;
-  void* data_;
-} LZCOMPOutput;
-
-/* Writes len bytes into buf, using the out callback. */
-int MTX_LZCOMP_Write(LZCOMPOutput out, const uint8_t* buf, long len);
-
 
 /* Constructors */
 LZCOMP *MTX_LZCOMP_Create1( MTX_MemHandler *mem  );
