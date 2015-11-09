@@ -1,12 +1,22 @@
 # lzcomp
 
-CFFI-based Python bindings for the LZCOMP compression library.
+CFFI-based Python bindings for the LZCOMP compression algorithm, as defined in the **Microtype® Express (MTX)** font format specification from Monotype Imaging.
+
+<http://www.w3.org/Submission/MTX/>
+
+Build:
+```
+$ python setup.py build
+```
+
+Test:
+```
+$ python setup.py test
+```
 
 Install:
 ```bash
-$ python setup.py build
-$ python setup.py test
-$ python setup.py install
+$ pip install -v .
 ```
 
 Usage:
