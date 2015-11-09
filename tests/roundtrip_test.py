@@ -13,9 +13,9 @@ data/alice29.txt
 data/asyoulik.txt
 data/lcet10.txt
 data/plrabn12.txt
-../src/c/lzcomp.c
-../src/c/mtxmem.h
-../src/c/ahuff.c
+../mtx/lzcomp.c
+../mtx/mtxmem.h
+../mtx/ahuff.c
 %s
 """ % LZCOMP
 
