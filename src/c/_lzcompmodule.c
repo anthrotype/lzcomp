@@ -30,33 +30,43 @@ int do_compress(long length, uint8_t *input,
     if (bufsize <= *p_output_length) {
         memcpy(output, buf, bufsize);
         *p_output_length = bufsize;
-        result = 1;
+        result = 1; // success!
     }
     MTX_LZCOMP_Destroy(lzcomp);
     free(mem);
     return result;
 }
 
-uint8_t* do_decompress(long length, uint8_t* input,
-                       long* p_output_length) {
+int do_decompress(long length, uint8_t *input,
+                  int callback(void *, const uint8_t *, long),
+                  void *callback_data) {
     MTX_MemHandler* mem = NULL;
     LZCOMP* lzcomp = NULL;
-    uint8_t *output = NULL;
+    uint8_t *buf = NULL;
+    long output_length;
+    int result = 0;
+    int num_written;
+    LZCOMPOutput out;
+
+    out.cb_ = callback;
+    out.data_ = callback_data;
 
     mem = MTX_mem_Create(&malloc, &realloc, &free);
-    if (!mem) return NULL;
+    if (!mem) return result;
 
     lzcomp = MTX_LZCOMP_Create1(mem);
     if (!lzcomp) {
         free(mem);
-        return NULL;
+        return result;
     }
 
-    output = (uint8_t*)MTX_LZCOMP_UnPackMemory(
-        lzcomp, input, length, p_output_length, 3);
-
+    buf = (uint8_t*)MTX_LZCOMP_UnPackMemory(
+        lzcomp, input, length, &output_length, 3);
+    num_written = MTX_LZCOMP_Write(out, buf, output_length);
+    if (num_written == output_length) {
+        result = 1;  // success!
+    }
     MTX_LZCOMP_Destroy(lzcomp);
     free(mem);
-
-    return output ? output: NULL;
+    return result;
 }
