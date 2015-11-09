@@ -35,8 +35,8 @@ for filename in INPUTS.splitlines():
     uncompressed = os.path.splitext(filename)[0] + ".uncompressed"
     expected = os.path.splitext(filename)[0]
     decomp_start = time.time()
-    check_call([PYTHON, LZCOMP, "-f", "-d", "-i", filename, "-o", uncompressed],
-               env=TEST_ENV)
+    check_call([PYTHON, LZCOMP, "-f", "-d", "-i", filename, "-o",
+                uncompressed], env=TEST_ENV)
     print("--- %s seconds ---" % (time.time() - decomp_start))
     if diff_q(uncompressed, expected) != 0:
         sys.exit(1)
