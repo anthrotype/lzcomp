@@ -41,12 +41,13 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(
         prog='lzcomp',
-        description="Compression/decompression utility using the LZCOMP algorithm.")
+        description=("Compression/decompression utility using the LZCOMP"
+                     "algorithm."))
     parser.add_argument('--version', action='version', version='0.1')
-    parser.add_argument('-i', '--input', metavar='FILE', type=str, dest='infile',
-                        help='Input file', default=None)
-    parser.add_argument('-o', '--output', metavar='FILE', type=str, dest='outfile',
-                        help='Output file', default=None)
+    parser.add_argument('-i', '--input', metavar='FILE', type=str,
+                        dest='infile', help='Input file', default=None)
+    parser.add_argument('-o', '--output', metavar='FILE', type=str,
+                        dest='outfile', help='Output file', default=None)
     parser.add_argument('-f', '--force', action='store_true',
                         help='Overwrite existing output file', default=False)
     parser.add_argument('-d', '--decompress', action='store_true',
@@ -79,7 +80,8 @@ def main(args=None):
         else:
             data = lzcomp.compress(data)
     except lzcomp.error as e:
-        parser.exit(1,'lzcomp: error: %s: %s' % (e, options.infile or 'sys.stdin'))
+        parser.exit(
+            1, 'lzcomp: error: %s: %s' % (e, options.infile or 'sys.stdin'))
 
     outfile.write(data)
     outfile.close()
