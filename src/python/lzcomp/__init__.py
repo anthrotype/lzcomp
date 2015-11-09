@@ -48,9 +48,16 @@ Returns:
 Raises:
   brotli.error: If decompressor fails."""
 
-    length = len(string)
-    p_output_length = ffi.new("long[1]", [0])
-    output = lib.do_decompress(length, string, p_output_length)
-    if output == ffi.NULL:
+    output_pieces = []
+    ok = lib.do_decompress(len(string), string, _decompress_callback,
+                           ffi.new_handle(output_pieces))
+    if not ok:
         raise error("MTX_LZCOMP_UnpackMemory failed")
-    return ffi.buffer(output, p_output_length[0])[:]
+    return b''.join(output_pieces)
+
+
+@ffi.callback("int callback(void *, const uint8_t *, long)")
+def _decompress_callback(data, output, output_size):
+    buf = ffi.buffer(output, output_size)[:]
+    ffi.from_handle(data).append(buf)
+    return output_size
