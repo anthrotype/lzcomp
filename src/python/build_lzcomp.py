@@ -11,8 +11,9 @@ ffi = cffi.FFI()
 ffi.cdef("""
 int do_compress(long length, uint8_t *input,
                 long *p_output_length, uint8_t *output);
-uint8_t* do_decompress(long length, uint8_t* input,
-                       long* p_output_length);
+int do_decompress(long length, uint8_t *input,
+                  int callback(void *, const uint8_t *, long),
+                  void *callback_data);
 """)
 
 ffi.set_source(
