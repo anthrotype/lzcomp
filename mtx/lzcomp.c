@@ -975,7 +975,7 @@ unsigned char *MTX_LZCOMP_PackMemory( register LZCOMP *t, void *dataIn, long siz
 }
 
 #endif /* COMPRESS_ON */
-
+    
 #ifdef DECOMPRESS_ON
 /* Call this method to un-compress memory */
 unsigned char *MTX_LZCOMP_UnPackMemory( register LZCOMP *t, void *dataIn, long dataInSize, long *sizeOut, unsigned char version )
