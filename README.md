@@ -1,5 +1,7 @@
 # lzcomp
 
+[![Build Status](https://drone.io/github.com/anthrotype/lzcomp/status.png)](https://drone.io/github.com/anthrotype/lzcomp/latest)
+
 CFFI-based Python bindings for the LZCOMP compression algorithm, as defined in the **Microtype® Express (MTX)** font format specification from Monotype Imaging.
 
 <http://www.w3.org/Submission/MTX/>
